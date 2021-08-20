@@ -10,16 +10,19 @@
 package top.limbang.minecraft.yggdrasil
 
 import kotlinx.coroutines.runBlocking
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.json.Json
 import org.junit.Test
 import top.limbang.minecraft.yggdrasil.model.AuthenticateRequest
-
+import top.limbang.minecraft.yggdrasil.model.ProfileTextures
+import java.util.*
 
 
 class YggdrasilApiTest {
     private val authUrl = "https://skin.blackyin.xyz/api/yggdrasil/authserver/"
     private val sessionUrl = "https://skin.blackyin.xyz/api/yggdrasil/sessionserver/"
-    private val correctAuthenticateRequest = AuthenticateRequest("x@x.com", "12345678")
-    private val errorAuthenticateRequest = AuthenticateRequest("x@x.com", "12345678")
+    private val correctAuthenticateRequest = AuthenticateRequest("123456@qq.com", "12345678")
+    private val errorAuthenticateRequest = AuthenticateRequest("123456@qq.com", "123456789")
 
     @Test
     fun createService() {
@@ -31,6 +34,19 @@ class YggdrasilApiTest {
             runCatching { service.authenticate(errorAuthenticateRequest) }.onFailure {
                 println("登陆失败:${it.message}")
             }
+        }
+    }
+
+    @Test
+    fun downloadSkin() {
+        val service = YggdrasilApi(authUrl, sessionUrl).createService()
+        runBlocking {
+            val token = service.authenticate(correctAuthenticateRequest)
+            val profile = service.profile(token.selectedProfile!!.id)
+            val texturesEncoder = profile.properties?.first { it.name == "textures" }?.value
+            val profileTextures =
+                Json.decodeFromString<ProfileTextures>(String(Base64.getDecoder().decode(texturesEncoder)))
+            service.downloadSkin(profileTextures.textures.skin.url).byteStream()
         }
     }
 }

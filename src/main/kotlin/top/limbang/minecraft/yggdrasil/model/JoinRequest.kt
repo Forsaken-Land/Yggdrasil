@@ -9,6 +9,8 @@
 
 package top.limbang.minecraft.yggdrasil.model
 
+import kotlinx.serialization.Serializable
+
 
 /**
  * ### 客户端进入服务器请求
@@ -16,4 +18,5 @@ package top.limbang.minecraft.yggdrasil.model
  * @param selectedProfile 该令牌绑定的角色的 UUID（无符号
  * @param serverId 服务端发送给客户端的 serverId
  */
+@Serializable
 data class JoinRequest(val accessToken: String, val selectedProfile: String, val serverId: String)

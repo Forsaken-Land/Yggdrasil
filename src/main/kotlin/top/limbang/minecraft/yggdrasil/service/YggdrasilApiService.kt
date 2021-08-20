@@ -10,6 +10,7 @@
 package top.limbang.minecraft.yggdrasil.service
 
 
+import okhttp3.ResponseBody
 import retrofit2.http.*
 import top.limbang.minecraft.yggdrasil.annotation.SessionServer
 import top.limbang.minecraft.yggdrasil.model.*
@@ -29,7 +30,7 @@ interface YggdrasilApiService {
      * 吊销用户的所有令牌。
      */
     @POST("signout")
-    suspend fun signout(@Body action: Account) : Boolean
+    suspend fun signout(@Body action: Account): Boolean
 
     /**
      * ### 刷新令牌
@@ -81,6 +82,12 @@ interface YggdrasilApiService {
     @GET("session/minecraft/profile/{uuid}")
     suspend fun profile(
         @Path("uuid") uuid: String,
-        @Query("unsigned") unsigned: Boolean = true
+        @Query("unsigned") unsigned: Boolean = true,
     ): Profile
+
+    /**
+     * ### 下载皮肤
+     */
+    @GET
+    suspend fun downloadSkin(@Url url: String): ResponseBody
 }
