@@ -44,9 +44,9 @@ class YggdrasilApiTest {
             val token = service.authenticate(correctAuthenticateRequest)
             val profile = service.profile(token.selectedProfile!!.id)
             val texturesEncoder = profile.properties?.first { it.name == "textures" }?.value
-            val profileTextures =
-                Json.decodeFromString<ProfileTextures>(String(Base64.getDecoder().decode(texturesEncoder)))
-            service.downloadSkin(profileTextures.textures.skin.url).byteStream()
+            val decode = String(Base64.getDecoder().decode(texturesEncoder))
+            val skin = Json.decodeFromString<ProfileTextures>(decode).textures.skin ?: return@runBlocking
+            service.downloadSkin(skin.url).byteStream()
         }
     }
 }
