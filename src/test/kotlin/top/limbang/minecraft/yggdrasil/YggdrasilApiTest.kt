@@ -30,7 +30,7 @@ class YggdrasilApiTest {
 
     @Test
     fun createService() {
-        val service = YggdrasilApi(authUrl, sessionUrl).createService()
+        val service = YggdrasilApi(authUrl, sessionUrl).get()
         runBlocking {
             runCatching { service.authenticate(correctAuthenticateRequest) }.onSuccess {
                 println("登陆成功:${it.selectedProfile?.name}")
@@ -43,7 +43,7 @@ class YggdrasilApiTest {
 
     @Test
     fun downloadSkin() {
-        val service = YggdrasilApi(authUrl, sessionUrl).createService()
+        val service = YggdrasilApi(authUrl, sessionUrl).get()
         runBlocking {
             val token = service.authenticate(correctAuthenticateRequest)
             val profile = service.profile(token.selectedProfile!!.id)

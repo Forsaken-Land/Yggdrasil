@@ -9,56 +9,61 @@
 
 package top.limbang.minecraft.yggdrasil
 
-import org.slf4j.LoggerFactory
 import kotlinx.serialization.json.Json
+import okhttp3.Interceptor
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import top.limbang.minecraft.yggdrasil.converter.toConverterFactory
 import top.limbang.minecraft.yggdrasil.interceptor.SessionServerInterceptor
 import top.limbang.minecraft.yggdrasil.interceptor.YggdrasilInterceptor
 import top.limbang.minecraft.yggdrasil.service.YggdrasilApiService
+import java.util.concurrent.TimeUnit
 
 /**
  * ### 创建 YggdrasilApi
  * @param authUrl 默认为正版地址
  * @param sessionUrl 默认为正版地址
+ * @param httpLoggingInterceptor okhttp httpLogging 默认不添加
+ * @param format Json 自定义的 [Json],默认是忽略输入 JSON 中遇到的未知属性
  */
 class YggdrasilApi(
     authUrl: String = "https://authserver.mojang.com/",
-    sessionUrl: String = "https://sessionserver.mojang.com/"
+    sessionUrl: String = "https://sessionserver.mojang.com/",
+    httpLoggingInterceptor: Interceptor? = null,
+    format: Json = Json { ignoreUnknownKeys = true },
 ) {
 
-    private val retrofit: Retrofit
-    private var service: YggdrasilApiService? = null
-
-    init {
-        val format = Json { ignoreUnknownKeys = true }
-        val logger = LoggerFactory.getLogger(this.javaClass)
-
-        val httpLoggingInterceptor = HttpLoggingInterceptor {
-            logger.debug(it)
-        }.apply { level = HttpLoggingInterceptor.Level.BASIC }
-
-        val okhttp = OkHttpClient.Builder()
-            .addInterceptor(httpLoggingInterceptor)
+    /**
+     * ### 创建 okhttp 客户端
+     */
+    private val okHttpClient: OkHttpClient by lazy {
+        OkHttpClient.Builder()
+            .connectTimeout(15, TimeUnit.SECONDS)
+            .readTimeout(15, TimeUnit.SECONDS)
+            .writeTimeout(15, TimeUnit.SECONDS)
+            .also { if (httpLoggingInterceptor != null) it.addInterceptor(httpLoggingInterceptor) }
             .addInterceptor(YggdrasilInterceptor())
             .addInterceptor(SessionServerInterceptor(authUrl, sessionUrl))
-            .build()
-
-        retrofit = Retrofit.Builder()
-            .baseUrl(authUrl)
-            .addConverterFactory(format.toConverterFactory())
-            .client(okhttp)
             .build()
     }
 
     /**
-     * ### 创建 YggdrasilApiService
+     * ### 创建 yggdrasilApi 服务
      */
-    fun createService(): YggdrasilApiService {
-        if (service == null) service = retrofit.create(YggdrasilApiService::class.java)
-        return service!!
+    private val yggdrasilApi by lazy {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(authUrl)
+            .addConverterFactory(format.toConverterFactory())
+            .client(okHttpClient)
+            .build()
+        retrofit.create(YggdrasilApiService::class.java)
     }
 
+
+    /**
+     * ### 获取 YggdrasilApiService
+     */
+    fun get() : YggdrasilApiService{
+        return yggdrasilApi
+    }
 }
