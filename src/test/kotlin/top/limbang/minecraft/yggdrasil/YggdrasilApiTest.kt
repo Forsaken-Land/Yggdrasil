@@ -15,7 +15,11 @@ import kotlinx.serialization.json.Json
 import org.junit.Test
 import top.limbang.minecraft.yggdrasil.model.AuthenticateRequest
 import top.limbang.minecraft.yggdrasil.model.ProfileTextures
+import java.awt.image.BufferedImage
+import java.io.File
 import java.util.*
+import javax.imageio.ImageIO
+import kotlin.math.roundToInt
 
 
 class YggdrasilApiTest {
@@ -26,7 +30,7 @@ class YggdrasilApiTest {
 
     @Test
     fun createService() {
-        val service = YggdrasilApi(authUrl, sessionUrl).createService()
+        val service = YggdrasilApi(authUrl, sessionUrl).get()
         runBlocking {
             runCatching { service.authenticate(correctAuthenticateRequest) }.onSuccess {
                 println("登陆成功:${it.selectedProfile?.name}")
@@ -39,14 +43,35 @@ class YggdrasilApiTest {
 
     @Test
     fun downloadSkin() {
-        val service = YggdrasilApi(authUrl, sessionUrl).createService()
+        val service = YggdrasilApi(authUrl, sessionUrl).get()
         runBlocking {
             val token = service.authenticate(correctAuthenticateRequest)
             val profile = service.profile(token.selectedProfile!!.id)
             val texturesEncoder = profile.properties?.first { it.name == "textures" }?.value
-            val profileTextures =
-                Json.decodeFromString<ProfileTextures>(String(Base64.getDecoder().decode(texturesEncoder)))
-            service.downloadSkin(profileTextures.textures.skin.url).byteStream()
+            val decode = String(Base64.getDecoder().decode(texturesEncoder))
+            val skin = Json.decodeFromString<ProfileTextures>(decode).textures.skin ?: return@runBlocking
+            val inputStream = service.downloadSkin(skin.url).byteStream()
+            val bufferedImage = ImageIO.read(inputStream)
+            inputStream.close()
+            ImageIO.write(bufferedImage,"png", File("1.png"))
+            val avatar = toAvatar(bufferedImage,32)
+            ImageIO.write(avatar,"png", File("2.png"))
         }
+    }
+
+    private fun toAvatar(skin: BufferedImage, size: Int): BufferedImage? {
+        val avatar = BufferedImage(size, size, BufferedImage.TYPE_INT_ARGB)
+        val g = avatar.createGraphics()
+        val scale = skin.width / 64
+        val faceOffset = (size / 18.0).roundToInt()
+        g.drawImage(skin,
+            faceOffset, faceOffset, size - faceOffset, size - faceOffset,
+            8 * scale, 8 * scale, 16 * scale, 16 * scale,
+            null)
+        g.drawImage(skin,
+            0, 0, size, size,
+            40 * scale, 8 * scale, 48 * scale, 16 * scale, null)
+        g.dispose()
+        return avatar
     }
 }

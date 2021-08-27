@@ -35,7 +35,7 @@ data class ProfileTextures(
 @Serializable
 data class Textures(
     @SerialName("SKIN")
-    val skin: Skin,
+    val skin: Skin? = null,
 ) {
     @Serializable
     data class Skin(
