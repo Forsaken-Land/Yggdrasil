@@ -9,6 +9,7 @@
 
 package top.limbang.minecraft.yggdrasil.interceptor
 
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import okhttp3.Interceptor
@@ -32,7 +33,11 @@ class YggdrasilInterceptor : Interceptor {
         val response = chain.proceed(request)
         // HTTP 不在 200-300 的错误状态码处理
         if (response.isSuccessful.not()) {
-            val errorMessage = Json.decodeFromString<ErrorMessage>(getResponseBody(response.body!!))
+            val errorMessage = try {
+                Json.decodeFromString(getResponseBody(response.body!!))
+            } catch (e: SerializationException) {
+                ErrorMessage(e.localizedMessage,"序列化错误!!!")
+            }
             throw YggdrasilException(errorMessage)
         }
         // HTTP 204 处理

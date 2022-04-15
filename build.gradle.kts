@@ -8,7 +8,7 @@ plugins {
 }
 
 group = "top.limbang.minecraft"
-version = "1.0.1"
+version = "1.0.2"
 
 repositories {
     maven("https://maven.aliyun.com/repository/public")
