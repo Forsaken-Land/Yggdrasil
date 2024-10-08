@@ -7,10 +7,10 @@
  * https://github.com/Forsaken-Land/yggdrasil/blob/master/LICENSE
  */
 
-const val kotlinVersion = "1.5.21"
-const val coroutinesVersion = "1.5.1"
+const val kotlinVersion = "2.0.20"
+const val coroutinesVersion = "1.9.0"
 const val retrofitVersion = "2.9.0"
-const val okhttpVersion = "5.0.0-alpha.2"
-const val serializationJsonVersion = "1.2.1"
+const val okhttpVersion = "5.0.0-alpha.11"
+const val serializationJsonVersion = "1.7.3"
 
 fun kotlinx(id: String, version: String) = "org.jetbrains.kotlinx:kotlinx-$id:$version"
