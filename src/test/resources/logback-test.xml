@@ -1,3 +1,10 @@
+<!--
+  ~ Copyright 2024 limbang and contributors.
+  ~
+  ~ 此源代码的使用受 GNU AGPLv3 许可证的约束，该许可证可在"LICENSE"文件中找到。
+  ~ Use of this source code is governed by the GNU AGPLv3 license that can be found in the "LICENSE" file.
+  -->
+
 <configuration>
     <!-- %m输出的信息,%p日志级别,%t线程名,%d日期,%c类的全名,%i索引【从数字0开始递增】,,, -->
     <!-- appender是configuration的子节点，是负责写日志的组件。 -->
@@ -14,7 +21,7 @@
     <!-- 指定项目中某个包，当有日志操作行为时的日志记录级别 -->
     <!-- 级别依次为【从高到低】：FATAL > ERROR > WARN > INFO > DEBUG > TRACE  -->
     <!-- additivity=false 表示匹配之后，不再继续传递给其他的logger-->
-    <logger name="top.limbang.yggdrasil" level="DEBUG" additivity="false">
+    <logger name="top.limbang.minecraft.yggdrasil" level="DEBUG" additivity="false">
         <appender-ref ref="STDOUT"/>
     </logger>
 
