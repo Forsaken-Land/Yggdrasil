@@ -31,7 +31,6 @@ fun Json.toConverterFactory() = JsonConverterFactory(this)
 class JsonConverterFactory(private val format:Json) : Converter.Factory() {
     private val mediaType = "application/json; charset=utf-8".toMediaType()
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun responseBodyConverter(
         type: Type,
         annotations: Array<out Annotation>,
@@ -41,7 +40,6 @@ class JsonConverterFactory(private val format:Json) : Converter.Factory() {
         return JsonResponseBodyConverter(serializer, format)
     }
 
-    @OptIn(ExperimentalSerializationApi::class)
     override fun requestBodyConverter(
         type: Type,
         parameterAnnotations: Array<out Annotation>,
@@ -56,7 +54,7 @@ class JsonConverterFactory(private val format:Json) : Converter.Factory() {
 /**
  * ### Json 请求内容 Converter
  */
-class JsonRequestBodyConverter<T>(
+class JsonRequestBodyConverter<T : Any>(
     private val contentType: MediaType,
     private val saver: SerializationStrategy<T>,
     private val format: Json,
