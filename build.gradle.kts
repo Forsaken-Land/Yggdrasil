@@ -64,7 +64,7 @@ publishing {
             artifactId = "yggdrasil"
             from(components["java"])
             pom {
-                name.set("yggdrasil api")
+                name.set("yggdrasil")
                 packaging = "jar"
                 url.set("https://github.com/limbang/yggdrasil")
                 description.set("Minecraft yggdrasil api")
